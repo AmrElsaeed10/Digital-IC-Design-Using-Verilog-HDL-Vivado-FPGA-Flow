@@ -1,0 +1,39 @@
+module InstaSpartan #(
+parameter REG_E = 1 ,
+parameter RSTTYPE = "SYNC",
+parameter IO_WIDTH = 18
+) (
+input [IO_WIDTH-1:0] in,
+input clk , rst, CE,
+output [IO_WIDTH-1:0] mux_out 
+);
+reg [IO_WIDTH-1:0] mux_out_ff;
+assign mux_out = (REG_E==1)?mux_out_ff:in;
+generate
+if (RSTTYPE=="SYNC") begin
+always @(posedge clk) begin
+if (rst) begin
+mux_out_ff <= 0;
+end
+else begin
+if(CE) begin
+ mux_out_ff <= in;
+end
+end
+end
+end
+else if (RSTTYPE=="ASYNC") begin
+always @(posedge clk or posedge rst) begin
+if (rst) begin
+ mux_out_ff <= 0;
+end
+else begin
+if (CE) begin
+mux_out_ff <= in;
+end
+end
+end
+end
+endgenerate
+
+endmodule //REG_MUX
